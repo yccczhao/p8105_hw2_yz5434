@@ -283,3 +283,75 @@ prop_women_apoe4 =
 For the data cleaning process, I first imported the MCI_baseline csv file and skipped the first row of variable descriptions. I treatied "." as missing values. Variable names were cleaned to have a consistent format. Sex and APOE4 carrier status were recoded from numeric indicators to categorical variables based on the description on the first line. Participants who had developed MCI at or before baseline were removed to meet the study inclusion criteria. The cleaned dataset contains `r n_participants` participants. The variables in this dataset are baseline age, sex, education, APOE4 carrier status, and age at MCI onset. Among the `r n_participants` participants, `r n_mci` developed MCI during follow-up. The average baseline age was  `r round(mean_baseline_age, 2)` years, and `r round(prop_women_apoe4 * 100, 1)`% of women were APOE4 carriers.
 
 
+```{r}
+amyloid_df =
+  read_csv(
+    "data/data_mci/MCI_amyloid.csv",
+    skip = 1,
+    na = c("", "NA", "Na", ".")
+  )
+
+amyloid_df = janitor::clean_names(amyloid_df)
+```
+
+```{r}
+amyloid_df =
+  amyloid_df |>
+  pivot_longer(
+    baseline:time_8,
+    names_to = "time",
+    values_to = "amyloid"
+  )
+```
+
+```{r}
+amyloid_df =
+  amyloid_df |>
+  mutate(
+    time = case_match(
+      time,
+      "baseline" ~ 0,
+      "time_2" ~ 2,
+      "time_4" ~ 4,
+      "time_6" ~ 6,
+      "time_8" ~ 8
+    )
+  )
+```
+
+```{r}
+amyloid_df =
+  amyloid_df |>
+  rename(id = study_id)
+```
+
+```{r}
+baseline_only =
+  baseline_df |>
+  anti_join(amyloid_df, by = "id")
+
+amyloid_only =
+  amyloid_df |>
+  anti_join(baseline_df, by = "id") |>
+  distinct(id)
+```
+
+```{r}
+combined_df =
+  amyloid_df |>
+  inner_join(
+    baseline_df,
+    by = "id"
+  )
+```
+
+```{r}
+write_csv(
+  combined_df,
+  "data/mci_complete.csv"
+)
+```
+
+First, I imported he amyloid biomarker dataset, skipped the first row of variable descriptions, treated missing-value codes as NA. The data were reshaped from wide to long format so that each row represents one participant at one measurement time. I also recoded the measurement times as 0, 2, 4, 6, and 8 years, and amyloid β 42/40 ratio values were converted to numeric. The resulting longitudinal dataset contains `r nrow(amyloid_df)` observations from `r n_distinct(amyloid_df$id)` participants.
+I Compared participant IDs across the two datasets. It showes that `r n_distinct(baseline_only$id)` participants appeared only in the cleaned baseline dataset, while `r n_distinct(amyloid_only$id)` participants appeared only in the amyloid dataset. Then I used inner join to retain only participants present in both datasets. The combined dataset contains `r nrow(combined_df)` observations from `r n_distinct(combined_df$id)` and `r ncol(combined_df)` variables. These variables include participant ID, measurement time, amyloid β 42/40 ratio, baseline age, sex, education, APOE4 carrier status, and age at MCI onset. The combined dataset was exported as mci_complete.csv.
+
