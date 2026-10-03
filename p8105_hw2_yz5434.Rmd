@@ -217,6 +217,69 @@ Professor Trash Wheel collected `r round(prof_total_weight, 2)` tons of trash in
 In June 2022, Gwynnda collected a total of `r format(gwynnda_june_2022, big.mark = ",", scientific = FALSE)` cigarette butts.
 
 
+## Problem 3
 
+```{r}
+baseline_df =
+  read_csv(
+    "data/data_mci/MCI_baseline.csv",
+    skip = 1,
+    na = c("", "NA", ".")
+  )
+
+baseline_df = janitor::clean_names(baseline_df)
+```
+
+
+```{r}
+baseline_df =
+  baseline_df |>
+  mutate(
+    sex = case_match(
+      sex,
+      0 ~ "Female",
+      1 ~ "Male"
+    ),
+    apoe4 = case_match(
+      apoe4,
+      0 ~ "Non-carrier",
+      1 ~ "Carrier"
+    )
+  )
+```
+
+```{r}
+baseline_df =
+  baseline_df |>
+  filter(
+    is.na(age_at_onset) | age_at_onset > current_age
+  )
+```
+
+```{r}
+n_participants = nrow(baseline_df)
+
+n_mci =
+  baseline_df |>
+  filter(!is.na(age_at_onset)) |>
+  nrow()
+
+mean_baseline_age =
+  baseline_df |>
+  summarize(
+    mean_age = mean(current_age, na.rm = TRUE)
+  ) |>
+  pull(mean_age)
+
+prop_women_apoe4 =
+  baseline_df |>
+  filter(sex == "Female") |>
+  summarize(
+    proportion = mean(apoe4 == "Carrier")
+  ) |>
+  pull(proportion)
+```
+
+For the data cleaning process, I first imported the MCI_baseline csv file and skipped the first row of variable descriptions. I treatied "." as missing values. Variable names were cleaned to have a consistent format. Sex and APOE4 carrier status were recoded from numeric indicators to categorical variables based on the description on the first line. Participants who had developed MCI at or before baseline were removed to meet the study inclusion criteria. The cleaned dataset contains `r n_participants` participants. The variables in this dataset are baseline age, sex, education, APOE4 carrier status, and age at MCI onset. Among the `r n_participants` participants, `r n_mci` developed MCI during follow-up. The average baseline age was  `r round(mean_baseline_age, 2)` years, and `r round(prop_women_apoe4 * 100, 1)`% of women were APOE4 carriers.
 
 
