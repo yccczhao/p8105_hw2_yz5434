@@ -6,6 +6,7 @@ output: github_document
 
 ```{r, message=FALSE}
 library(tidyverse)
+library(readxl)
 ```
 
 ## Problem 1
@@ -111,4 +112,16 @@ n_a_ada_stations =
 ```
 
 There are `r n_a_stations` distinct stations that serve the A train. Among these stations, `r n_a_ada_stations` are ADA compliant.
+
+
+
+## Problem 2
+
+
+
+
+
+
+
+
 
