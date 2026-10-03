@@ -129,19 +129,13 @@ mr_trash_df = janitor::clean_names(mr_trash_df)
 
 mr_trash_df =
   mr_trash_df |>
+  filter(!is.na(dumpster)) |>
   mutate(
-    sports_balls = as.integer(round(sports_balls))
-  )
-```
-
-```{r}
-mr_trash_df =
-  mr_trash_df |>
-  mutate(
+    sports_balls = as.integer(round(sports_balls)),
+    year = as.numeric(year),
     trash_wheel = "Mr. Trash Wheel"
   )
 ```
-
 
 
 ```{r}
@@ -158,6 +152,7 @@ prof_trash_df = janitor::clean_names(prof_trash_df)
 ```{r}
 prof_trash_df =
   prof_trash_df |>
+  filter(!is.na(dumpster)) |>
   mutate(
     trash_wheel = "Professor Trash Wheel"
   )
@@ -177,13 +172,49 @@ gwynnda_df = janitor::clean_names(gwynnda_df)
 ```{r}
 gwynnda_df =
   gwynnda_df |>
+  filter(!is.na(dumpster)) |>
   mutate(
     trash_wheel = "Gwynnda Wheel"
   )
 ```
 
+```{r}
+trash_df =
+  bind_rows(
+    mr_trash_df,
+    prof_trash_df,
+    gwynnda_df
+  )
+```
 
+```{r}
+prof_total_weight =
+  trash_df |>
+  filter(trash_wheel == "Professor Trash Wheel") |>
+  summarize(
+    total_weight = sum(weight_tons, na.rm = TRUE)
+  ) |>
+  pull(total_weight)
+```
 
+```{r}
+gwynnda_june_2022 =
+  trash_df |>
+  filter(
+    trash_wheel == "Gwynnda Wheel",
+    year == 2022,
+    month == "June"
+  ) |>
+  summarize(
+    total_butts = sum(cigarette_butts, na.rm = TRUE)
+  ) |>
+  pull(total_butts)
+```
+
+The combined Trash Wheel dataset contains `r nrow(trash_df)` observations, which are come from Mr. Trash Wheel, Professor Trash Wheel, and Gwynnda Wheel.
+Key variables include dumpster number, date, trash wheel, weight of trash collected, volume, plastic bottles, polystyrene, cigarette butts, plastic bags, and wrappers.
+Professor Trash Wheel collected `r round(prof_total_weight, 2)` tons of trash in total.
+In June 2022, Gwynnda collected a total of `r format(gwynnda_june_2022, big.mark = ",", scientific = FALSE)` cigarette butts.
 
 
 
