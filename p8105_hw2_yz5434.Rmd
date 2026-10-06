@@ -120,9 +120,9 @@ There are `r n_a_stations` distinct stations that serve the A train. Among these
 ```{r}
 mr_trash_df = 
   read_excel(
-    "data/202509 Trash Wheel Collection Data.xlsx",
+    "data/202610 Trash Wheel Collection Data.xlsx",
     sheet = "Mr. Trash Wheel",
-    range = "A2:N709"
+    range = "A2:N742"
   )
 
 mr_trash_df = janitor::clean_names(mr_trash_df)
@@ -141,9 +141,9 @@ mr_trash_df =
 ```{r}
 prof_trash_df =
   read_excel(
-    "data/202509 Trash Wheel Collection Data.xlsx",
+    "data/202610 Trash Wheel Collection Data.xlsx",
     sheet = "Professor Trash Wheel",
-    range = "A2:M134"
+    range = "A2:M139"
   )
 
 prof_trash_df = janitor::clean_names(prof_trash_df)
@@ -154,6 +154,7 @@ prof_trash_df =
   prof_trash_df |>
   filter(!is.na(dumpster)) |>
   mutate(
+    plastic_bottles = as.numeric(plastic_bottles),
     trash_wheel = "Professor Trash Wheel"
   )
 ```
@@ -161,9 +162,9 @@ prof_trash_df =
 ```{r}
 gwynnda_df =
   read_excel(
-    "data/202509 Trash Wheel Collection Data.xlsx",
-    sheet = "Gwynns Falls Trash Wheel",
-    range = "A2:L351"
+    "data/202610 Trash Wheel Collection Data.xlsx",
+    sheet = "Gwynnda the Good Wheel of the W",
+    range = "A2:L394"
   )
 
 gwynnda_df = janitor::clean_names(gwynnda_df)
