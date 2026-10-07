@@ -361,3 +361,4 @@ First, I imported the amyloid biomarker dataset, skipped the first row of variab
 
 I Compared participant IDs across the two datasets. It showes that `r n_distinct(baseline_only$id)` participants appeared only in the cleaned baseline dataset, while `r n_distinct(amyloid_only$id)` participants appeared only in the amyloid dataset. Then I used inner join to retain only participants present in both datasets. The combined dataset contains `r nrow(combined_df)` observations from `r n_distinct(combined_df$id)` participants and `r ncol(combined_df)` variables. These variables include participant ID, measurement time, amyloid β 42/40 ratio, baseline age, sex, education, APOE4 carrier status, and age at MCI onset. The combined dataset was exported as mci_complete.csv.
 
+
