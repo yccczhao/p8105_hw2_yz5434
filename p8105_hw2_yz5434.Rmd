@@ -156,6 +156,7 @@ prof_trash_df =
   prof_trash_df |>
   filter(!is.na(dumpster)) |>
   mutate(
+    plastic_bottles = na_if(plastic_bottles, "dive"),
     plastic_bottles = as.numeric(plastic_bottles),
     trash_wheel = "Professor Trash Wheel"
   )
@@ -233,6 +234,8 @@ baseline_df =
   )
 
 baseline_df = janitor::clean_names(baseline_df)
+
+n_recruited = nrow(baseline_df)
 ```
 
 
@@ -264,6 +267,8 @@ baseline_df =
 ```{r}
 n_participants = nrow(baseline_df)
 
+n_excluded = n_recruited - n_participants
+
 n_mci =
   baseline_df |>
   filter(!is.na(age_at_onset)) |>
@@ -285,8 +290,7 @@ prop_women_apoe4 =
   pull(proportion)
 ```
 
-For the data cleaning process, I first imported the MCI_baseline csv file and skipped the first row of variable descriptions. I treatied "." as missing values. Variable names were cleaned to have a consistent format. Sex and APOE4 carrier status were recoded from numeric indicators to categorical variables based on the description on the first line. Participants who had developed MCI at or before baseline were removed to meet the study inclusion criteria. The cleaned dataset contains `r n_participants` participants. The variables in this dataset are baseline age, sex, education, APOE4 carrier status, and age at MCI onset. Among the `r n_participants` participants, `r n_mci` developed MCI during follow-up. The average baseline age was  `r round(mean_baseline_age, 2)` years, and `r round(prop_women_apoe4 * 100, 1)`% of women were APOE4 carriers.
-
+For the data cleaning process, I first imported the MCI_baseline csv file and skipped the first row of variable descriptions. I treated "." as missing values. Variable names were cleaned to have a consistent format. Sex and APOE4 carrier status were recoded from numeric indicators to categorical variables based on the description on the first line. Participants who had developed MCI at or before baseline were removed to meet the study inclusion criteria. A total of `r n_recruited` participants were recruited. After excluding `r n_excluded` participants whose age at MCI onset was less than or equal to their baseline age, `r n_participants` participants remained in the cleaned baseline dataset. Among these `r n_participants` participants, `r n_mci` developed MCI during follow-up. The average baseline age was `r round(mean_baseline_age, 2)` years, and `r round(prop_women_apoe4 * 100, 1)`% of women were APOE4 carriers.
 
 ```{r, message=FALSE}
 amyloid_df =
@@ -359,6 +363,6 @@ write_csv(
 
 First, I imported the amyloid biomarker dataset, skipped the first row of variable descriptions, treated missing-value codes as NA. The data were reshaped from wide to long format so that each row represents one participant at one measurement time. I also recoded the measurement times as 0, 2, 4, 6, and 8 years. The resulting longitudinal dataset contains `r nrow(amyloid_df)` observations from `r n_distinct(amyloid_df$id)` participants.
 
-I Compared participant IDs across the two datasets. It showes that `r n_distinct(baseline_only$id)` participants appeared only in the cleaned baseline dataset, while `r n_distinct(amyloid_only$id)` participants appeared only in the amyloid dataset. Then I used inner join to retain only participants present in both datasets. The combined dataset contains `r nrow(combined_df)` observations from `r n_distinct(combined_df$id)` participants and `r ncol(combined_df)` variables. These variables include participant ID, measurement time, amyloid β 42/40 ratio, baseline age, sex, education, APOE4 carrier status, and age at MCI onset. The combined dataset was exported as mci_complete.csv.
+I compared participant IDs across the two datasets. It shows that `r n_distinct(baseline_only$id)` participants appeared only in the cleaned baseline dataset, while `r n_distinct(amyloid_only$id)` participants appeared only in the amyloid dataset. Then I used inner join to retain only participants present in both datasets. The combined dataset contains `r nrow(combined_df)` observations from `r n_distinct(combined_df$id)` participants and `r ncol(combined_df)` variables. These variables include participant ID, measurement time, amyloid β 42/40 ratio, baseline age, sex, education, APOE4 carrier status, and age at MCI onset. The combined dataset was exported as mci_complete.csv.
 
 
